@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "finaudit-quickbooks": {
+      "command": "C:\\Users\\prewa\\AppData\\Local\\Programs\\Python\\Python313\\python.exe integrations\\qbo_mcp_server.py",
+      "working_dir": "E:\\FinAudit-Workbench",
+      "transport": "stdio"
+    }
+  }
+}
