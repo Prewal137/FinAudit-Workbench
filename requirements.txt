@@ -1,0 +1,8 @@
+# Runtime dependencies
+openpyxl
+pyyaml
+httpx
+python-dotenv
+
+# Test‑only dependencies
+pytest
