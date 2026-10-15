@@ -89,6 +89,11 @@ def generate_report(source_name: str, is_stmt, bs_stmt, val_report, metrics, rep
     # Determine the chronological list of periods (oldest to newest)
     periods = sorted(is_stmt.get_period_keys()) if is_stmt is not None else sorted(metrics.monthly_metrics.keys())
     latest = periods[-1] if periods else "N/A"
+    # Source‑aware flags
+    is_quickbooks = source_name == "QuickBooks"
+    expense_label = "Other OpEx"
+    if is_quickbooks:
+        expense_label = "Operating Expenses"
 
     # Section 1 – Executive Summary (brief placeholder – actual content will be filled later)
     lines = []
@@ -138,7 +143,7 @@ def generate_report(source_name: str, is_stmt, bs_stmt, val_report, metrics, rep
 
     # Section 5 – Operating Expense Analysis
     lines.append("## 5. Operating Expense Analysis\n")
-    lines.append("| Period | Direct OpEx | S&M Payroll | Marketing | Other OpEx | Total OpEx |\n")
+    lines.append(f"| Period | Direct OpEx | S&M Payroll | Marketing | {expense_label} | Total OpEx |\n")
     lines.append("|---|---|---|---|---|---|\n")
     for p in periods:
         direct = format_currency(m(p, "direct_opex"))
@@ -180,30 +185,36 @@ def generate_report(source_name: str, is_stmt, bs_stmt, val_report, metrics, rep
 
     # Section 8 – Balance‑Sheet Indicators and Reconciliation
     lines.append("## 8. Balance‑Sheet Indicators and Reconciliation\n")
-    lines.append("| Period | Cash | Current Assets | Current Liabilities | Working Capital | Current Ratio | Total Assets | Total Liabilities | Total Equity |\n")
-    lines.append("|---|---|---|---|---|---|---|---|---|\n")
-    for p in periods:
-        cash = format_currency(m(p, "cash"))
-        ca = format_currency(m(p, "current_assets"))
-        cl = format_currency(m(p, "current_liabilities"))
-        wc = format_currency(m(p, "working_capital"))
-        cr = format_pct(m(p, "current_ratio"))
-        ta = format_currency(m(p, "total_assets"))
-        tl = format_currency(m(p, "total_liabilities"))
-        te = format_currency(m(p, "total_equity"))
-        lines.append(f"| {p} | {cash} | {ca} | {cl} | {wc} | {cr} | {ta} | {tl} | {te} |")
-    lines.append("\n")
+    if is_quickbooks:
+        lines.append("*Balance‑sheet data is not available for QuickBooks source.*\n")
+    else:
+        lines.append("| Period | Cash | Current Assets | Current Liabilities | Working Capital | Current Ratio | Total Assets | Total Liabilities | Total Equity |\n")
+        lines.append("|---|---|---|---|---|---|---|---|---|\n")
+        for p in periods:
+            cash = format_currency(m(p, "cash"))
+            ca = format_currency(m(p, "current_assets"))
+            cl = format_currency(m(p, "current_liabilities"))
+            wc = format_currency(m(p, "working_capital"))
+            cr = format_pct(m(p, "current_ratio"))
+            ta = format_currency(m(p, "total_assets"))
+            tl = format_currency(m(p, "total_liabilities"))
+            te = format_currency(m(p, "total_equity"))
+            lines.append(f"| {p} | {cash} | {ca} | {cl} | {wc} | {cr} | {ta} | {tl} | {te} |")
+        lines.append("\n")
 
     # Section 9 – Significant Anomalies and Supporting Evidence
     lines.append("## 9. Significant Anomalies and Supporting Evidence\n")
-    # Use validation findings for anomalies
-    for finding in val_report.findings:
-        if finding.rule_id.startswith("VAL-ANOM"):
-            period = finding.period or "N/A"
-            row = finding.row_number or "?"
-            details = finding.details
-            lines.append(f"- **[Fact]** Period `{period}` – Row `{row}`: {details}\n")
-            lines.append(f"  - **[Recommended Investigation]** Review the underlying journal entries and supporting documentation for this anomaly.\n")
+    if is_quickbooks:
+        lines.append("- No supported anomalies found for QuickBooks source.\n")
+    else:
+        # Use validation findings for anomalies
+        for finding in val_report.findings:
+            if finding.rule_id.startswith("VAL-ANOM"):
+                period = finding.period or "N/A"
+                row = finding.row_number or "?"
+                details = finding.details
+                lines.append(f"- **[Fact]** Period `{period}` – Row `{row}`: {details}\n")
+                lines.append(f"  - **[Recommended Investigation]** Review the underlying journal entries and supporting documentation for this anomaly.\n")
     lines.append("\n")
 
     # Section 10 – Facts, Interpretations, and Hypotheses
@@ -211,11 +222,12 @@ def generate_report(source_name: str, is_stmt, bs_stmt, val_report, metrics, rep
     lines.append("*All observations in the report are labeled. The sections above already contain the required labeling; this section provides a consolidated view.*\n\n")
 
     # Section 11 – Recommended Investigations and Next Actions
-    lines.append("## 11. Recommended Investigations and Next Actions\n")
-    lines.append("- Reconcile the December 2025 tax benefit (row 101) to the tax provision work‑papers.\n")
-    lines.append("- Verify the nature and timing of the December 2025 stock‑based compensation expense (row 99).\n")
-    lines.append("- Investigate the debit balances observed in the HSA Liability account (row 48) across the affected periods.\n")
-    lines.append("- Review any warning findings from validation for potential data quality issues.\n\n")
+    if not is_quickbooks:
+        lines.append("## 11. Recommended Investigations and Next Actions\n")
+        lines.append("- Reconcile the December 2025 tax benefit (row 101) to the tax provision work‑papers.\n")
+        lines.append("- Verify the nature and timing of the December 2025 stock‑based compensation expense (row 99).\n")
+        lines.append("- Investigate the debit balances observed in the HSA Liability account (row 48) across the affected periods.\n")
+        lines.append("- Review any warning findings from validation for potential data quality issues.\n\n")
 
     # Section 12 – Limitations and Reviewer Caveats
     lines.append("## 12. Limitations and Reviewer Caveats\n")
