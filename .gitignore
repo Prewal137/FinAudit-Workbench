@@ -1,0 +1,62 @@
+# Ignore environment variables
+.env
+.env.*
+!.env.example
+
+# Ignore virtual environments
+.venv/
+.venv-mcp/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Pytest cache
+.pytest_cache/
+
+# -----------------------------------------------------------------
+# Additional ignores – generated artefacts, logs, IDE, OS junk
+# -----------------------------------------------------------------
+
+# Runtime‑generated JSON / markdown / HTML reports (top‑level only)
+reports/*.json          # top‑level JSON artefacts (validation_report.json, data_profile.json, QBO P&L JSONs, import_manifest.json)
+reports/*.md            # top‑level markdown reports (financial‑trend‑analysis_report.md, live_qb_report.md)
+reports/*.html          # top‑level generated HTML (e.g., dry_run_import_v2.html)
+
+# Payload‑related generated directories (ignore their contents)
+reports/balanced_payloads/
+
+reports/dry_run_payloads/
+
+# Generated payload directories (skip from version control)
+reports/candidate_payloads/
+reports/corrected_payloads/
+
+# Log / temporary files produced by scripts or the OS
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+
+# Coverage / test artefacts (if you ever run coverage)
+.coverage
+coverage.xml
+htmlcov/
+
+# Build / distribution artefacts (not used now but safe to ignore)
+dist/
+build/
+*.egg-info/
+
+# IDE / editor specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS‑specific junk
+.DS_Store
+Thumbs.db
+
+# Python byte‑code variants not already covered
+*.pyo
