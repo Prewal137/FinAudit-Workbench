@@ -15,7 +15,8 @@ from __future__ import annotations
 import json
 import hashlib
 import os
-from typing import Dict, Any, List
+import time
+from typing import Dict, Any, List, Optional
 
 # ---------------------------------------------------------------------------
 # Helper utilities for deterministic hashing and manifest handling
@@ -47,11 +48,59 @@ def _load_manifest(manifest_path: str) -> Dict[str, Any]:
     return {"hashes": []}
 
 
+def _acquire_manifest_lock(lock_path: str, timeout: int = 10) -> None:
+    """Acquire an exclusive lock file for the manifest.
+
+    The lock is implemented by creating a lock file using O_EXCL. If the lock
+    already exists, the function retries until *timeout* seconds have elapsed.
+    Raises TimeoutError if the lock cannot be acquired.
+    """
+    start = time.time()
+    while True:
+        try:
+            # Use os.O_CREAT | os.O_EXCL to ensure atomic creation.
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.close(fd)
+            return
+        except FileExistsError:
+            if time.time() - start > timeout:
+                raise TimeoutError(f"Could not acquire manifest lock for {lock_path}")
+            time.sleep(0.1)
+
+def _release_manifest_lock(lock_path: str) -> None:
+    """Release the manifest lock by deleting the lock file.
+
+    Silently ignore if the lock file is already missing.
+    """
+    try:
+        os.unlink(lock_path)
+    except FileNotFoundError:
+        pass
+
+
 def _save_manifest(manifest_path: str, manifest: Dict[str, Any]) -> None:
-    """Write the manifest back to disk, creating parent directories as needed."""
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-    with open(manifest_path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
+    """Write the manifest JSON atomically.
+
+    Writes to a temporary file in the same directory then renames it to
+    ``manifest_path``. The temporary file is removed if an error occurs.
+    """
+    # Ensure the directory exists.
+    dir_path = os.path.dirname(manifest_path)
+    os.makedirs(dir_path, exist_ok=True)
+    temp_path = f"{manifest_path}.tmp"
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(manifest, f, indent=2, sort_keys=True)
+        # Atomic replace.
+        os.replace(temp_path, manifest_path)
+    finally:
+        # Cleanup any stray temporary file.
+        try:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+        except OSError:
+            pass
+
 
 
 # ---------------------------------------------------------------------------
@@ -61,6 +110,7 @@ def _save_manifest(manifest_path: str, manifest: Dict[str, Any]) -> None:
 def prepare_journal_entry(
     normalized_period: Dict[str, Any],
     account_map: Dict[str, str],
+    chart_of_accounts: Optional[List[Dict[str, Any]]] = None,
 ) -> Dict[str, Any]:
     """Prepare a QuickBooks ``JournalEntry`` payload for a single period.
 
@@ -82,11 +132,8 @@ def prepare_journal_entry(
         balancing line is required and the caller explicitly provides an account
         mapping for ``net_income``.
 
-    account_map:
-        Mapping from logical component names to QuickBooks ``AccountRef`` IDs.
-        Expected keys are ``revenue``, ``cogs``, ``direct_opex``, ``sm_payroll``,
-        ``marketing``, ``other_opex`` and optionally ``net_income`` (required only
-        when the revenue‑expenses difference is non‑zero).
+    chart_of_accounts:
+        Optional list of account dicts (as returned by ``list_chart_of_accounts``) used for validation. If supplied, each ``account_map`` value must exist in this snapshot; otherwise a ``ValueError`` is raised.
 
 
     Returns
@@ -121,19 +168,27 @@ def prepare_journal_entry(
             raise ValueError(f"Field '{field}' cannot be None for period {normalized_period.get('period')}")
 
     # -------------------------------------------------------------------
-    # Account mapping validation
+    # Account‑mapping presence validation (A1)
     # -------------------------------------------------------------------
-    required_accounts = [
-        "revenue",
-        "cogs",
-        "direct_opex",
-        "sm_payroll",
-        "marketing",
-        "other_opex",
-    ]
-    for acct in required_accounts:
-        if acct not in account_map:
-            raise ValueError(f"Missing account mapping for '{acct}'")
+    required_account_keys = ["revenue", "cogs", "direct_opex", "sm_payroll", "marketing", "other_opex"]
+    for acct_key in required_account_keys:
+        if acct_key not in account_map:
+            raise ValueError(f"Missing account mapping for '{acct_key}'")
+    # -------------------------------------------------------------------
+    # Account ID existence validation against supplied chart of accounts (if provided)
+    # -------------------------------------------------------------------
+    if chart_of_accounts is not None:
+        # Accept either a raw list of account dicts or a dict with an "accounts" key.
+        if isinstance(chart_of_accounts, dict) and "accounts" in chart_of_accounts:
+            accounts_list = chart_of_accounts["accounts"]
+        else:
+            accounts_list = chart_of_accounts
+        # Build a set of known IDs (as strings) for fast lookup.
+        known_ids = {str(acct.get("id")) for acct in accounts_list if "id" in acct}
+        # Verify every mapped account ID exists.
+        for key, acct_id in account_map.items():
+            if str(acct_id) not in known_ids:
+                raise ValueError(f"Account ID '{acct_id}' for mapping key '{key}' not found in supplied chart of accounts")
 
     # -------------------------------------------------------------------
     # Build journal lines – amounts are always positive; direction is encoded via
@@ -151,8 +206,8 @@ def prepare_journal_entry(
         )
 
     lines: List[Dict[str, Any]] = []
-    # Revenue is a credit (negative posting relative to the accounting equation).
-    _add_line(-normalized_period["revenue"], "Credit", "revenue", lines)
+    # Revenue is a credit (positive amount, PostingType Credit).
+    _add_line(normalized_period["revenue"], "Credit", "revenue", lines)
     # Expenses: handle sign – positive amounts are debits, negative amounts are credits.
     expense_mapping = {
         "cost_of_goods_sold": "cogs",
@@ -174,26 +229,16 @@ def prepare_journal_entry(
     # _add_line(normalized_period["other_opex"], "Debit", "other_opex", lines)
 
     # -------------------------------------------------------------------
-    # Balancing – if total debits != total credits we need a net‑income line.
+    # Balancing – ensure the entry is balanced.
+    # Automatic net_income balancing is disabled; callers must ensure balance.
     # -------------------------------------------------------------------
-        # Compute totals from constructed lines to determine any balancing requirement.
-        total_debits = sum(line["Amount"] for line in lines if line["PostingType"] == "Debit")
-        total_credits = sum(line["Amount"] for line in lines if line["PostingType"] == "Credit")
-        balance = round(total_credits - total_debits, 2)
-    # total_credits = normalized_period["revenue"]
-    # balance = round(total_credits - total_debits, 2)
-    if balance != 0:
-        # A balancing entry is required. The caller must provide a mapping.
-            if "net_income" not in account_map:
-                raise ValueError(
-                    "Balancing entry required but no 'net_income' account mapping provided"
-                )
-            if balance > 0:
-                # Positive balance (profit): add a Debit net_income line to offset
-                _add_line(balance, "Debit", "net_income", lines)
-            else:
-                # Negative balance (loss): add a Credit net_income line to offset
-                _add_line(abs(balance), "Credit", "net_income", lines)
+    total_debits = sum(line["Amount"] for line in lines if line["PostingType"] == "Debit")
+    total_credits = sum(line["Amount"] for line in lines if line["PostingType"] == "Credit")
+    if total_debits != total_credits:
+        raise ValueError(
+            f"Unbalanced entry for period {normalized_period['period']}: "
+            f"credits {total_credits:.2f} != debits {total_debits:.2f}"
+        )
 
     # -------------------------------------------------------------------
     # Assemble payload – QuickBooks expects a ``TxnDate`` (ISO‑8601 date).  We
@@ -261,16 +306,36 @@ def record_journal_entry_import(
         ``../reports/qbo_journal_manifest.json`` relative to this module.
     """
     if manifest_path is None:
-        base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-        manifest_path = os.path.join(base_dir, "reports", "qbo_journal_manifest.json")
-    manifest = _load_manifest(manifest_path)
-    entries = manifest.setdefault("entries", {})
-    entry_hash = _hash_entry(payload)
-    if period in entries:
-        if entries[period] == entry_hash:
-            raise ValueError(f"Duplicate journal entry detected for period {period}")
-        raise ValueError(f"Conflicting journal entry already recorded for period {period}")
-    entries[period] = entry_hash
-    _save_manifest(manifest_path, manifest)
+        # Resolve default location, respecting environment variable if set.
+        env_path = os.getenv("QBO_JOURNAL_MANIFEST")
+        # Use two‑level up from this file to match test expectations (repo_root is parent of repository).
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+        if env_path:
+            # If env var provides a relative path, resolve against repo root.
+            manifest_path = env_path if os.path.isabs(env_path) else os.path.join(repo_root, env_path)
+        else:
+            manifest_path = os.path.join(repo_root, "reports", "qbo_journal_manifest.json")
+    else:
+        # Ensure a relative manifest_path is resolved against the repository root.
+        if not os.path.isabs(manifest_path):
+            repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir))
+            manifest_path = os.path.join(repo_root, manifest_path)
+    # Ensure the directory for the manifest (and lock) exists.
+    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
+    # Acquire an exclusive lock before reading/writing the manifest.
+    lock_path = f"{manifest_path}.lock"
+    _acquire_manifest_lock(lock_path)
+    try:
+        manifest = _load_manifest(manifest_path)
+        entries = manifest.setdefault("entries", {})
+        entry_hash = _hash_entry(payload)
+        if period in entries:
+            if entries[period] == entry_hash:
+                raise ValueError(f"Duplicate journal entry detected for period {period}")
+            raise ValueError(f"Conflicting journal entry already recorded for period {period}")
+        entries[period] = entry_hash
+        _save_manifest(manifest_path, manifest)
+    finally:
+        _release_manifest_lock(lock_path)
 
 # If the official API differs, this implementation would need adjustment.

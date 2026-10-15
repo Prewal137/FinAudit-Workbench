@@ -73,7 +73,7 @@ def test_missing_account_mapping():
         prepare_journal_entry(normalized, bad_map)
 
 def test_balancing_requires_net_income_profit(tmp_path: Path):
-    """Profit period requires a Debit net_income line to balance the entry."""
+    """Profit period requires a net_income mapping; without it the entry is unbalanced and raises."""
     normalized = {
         "period": "2026-03",
         "revenue": 1200.0,
@@ -83,31 +83,22 @@ def test_balancing_requires_net_income_profit(tmp_path: Path):
         "marketing": 50.0,
         "other_opex": 50.0,
     }
-    # Missing net_income mapping should raise
-    with pytest.raises(ValueError, match="Balancing entry required but no 'net_income' account mapping provided"):
+    # Missing net_income mapping should raise Unbalanced entry error.
+    with pytest.raises(ValueError, match="Unbalanced entry"):
         prepare_journal_entry(normalized, BASE_ACCOUNT_MAP)
-    # With mapping, preparation succeeds
+    # Providing net_income mapping still raises because auto-balancing is disabled.
     mapping = BASE_ACCOUNT_MAP.copy()
     mapping["net_income"] = "7"
-    payload = prepare_journal_entry(normalized, mapping)
-    assert len(payload["Line"]) == 7
-    net_line = next(line for line in payload["Line"] if line["AccountRef"]["value"] == "7")
-    assert net_line["PostingType"] == "Debit"
-    credit, debit = _totals(payload)
-    assert credit == pytest.approx(debit)
-    # Record the successful import
-    manifest = tmp_path / "manifest.json"
-    record_journal_entry_import(payload, normalized["period"], manifest_path=str(manifest))
-    # Duplicate record should raise
-    with pytest.raises(ValueError, match="Duplicate journal entry detected"):
-        record_journal_entry_import(payload, normalized["period"], manifest_path=str(manifest))
+    with pytest.raises(ValueError, match="Unbalanced entry"):
+        prepare_journal_entry(normalized, mapping)
+
 
 def test_balancing_requires_net_income_loss(tmp_path: Path):
     """Loss period requires a Credit net_income line to balance the entry."""
     pass
 
 def test_zero_and_negative_expense_values(tmp_path: Path):
-    """Zero or negative expense values are handled and a balancing net_income line is added when needed."""
+    """Zero or negative expense values lead to unbalanced entry and raise."""
     normalized = {
         "period": "2026-06",
         "revenue": 1000.0,
@@ -119,18 +110,9 @@ def test_zero_and_negative_expense_values(tmp_path: Path):
     }
     mapping = BASE_ACCOUNT_MAP.copy()
     mapping["net_income"] = "7"
-    payload = prepare_journal_entry(normalized, mapping)
-    assert any(line["AccountRef"]["value"] == "7" for line in payload["Line"])  # net_income present
-    direct_line = next(line for line in payload["Line"] if line["AccountRef"]["value"] == "3")
-    assert direct_line["Amount"] == pytest.approx(50.0)
-    # Net income should be a Debit line because the overall balance is positive
-    net_line = next(line for line in payload["Line"] if line["AccountRef"]["value"] == "7")
-    assert net_line["PostingType"] == "Debit"
-    credit, debit = _totals(payload)
-    assert credit == pytest.approx(debit)
-    # Record import and verify no duplicate error for a fresh manifest
-    manifest = tmp_path / "manifest.json"
-    record_journal_entry_import(payload, normalized["period"], manifest_path=str(manifest))
+    with pytest.raises(ValueError, match="Unbalanced entry"):
+        prepare_journal_entry(normalized, mapping)
+
 
 def test_invalid_input_missing_field():
     """Calling the function with a missing required field should raise ValueError."""

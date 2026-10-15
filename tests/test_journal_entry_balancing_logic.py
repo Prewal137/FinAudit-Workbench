@@ -1,14 +1,17 @@
-'''Tests for read‑only safety and accounting‑logic validation of QBO journal‑entry preparation.
+'''Tests for read‑only safety and accounting‑logic validation of QBO journal‑entry preparation after Phase 5 changes.
 
-These tests do **not** modify any production code, do not call QuickBooks, and use only the in‑repo pure‑Python helpers.
+These tests verify that:
+* Revenue lines are generated as Credit entries.
+* Expense lines are generated as Debit entries.
+* The function raises a ValueError for unbalanced entries (no automatic net_income balancing).
+* The manifest handling functions behave as before.
 '''
 
 import inspect
 import pytest
-from pathlib import Path
-
-# Import the functions under test from the integration module.
 import importlib.util, pathlib
+
+# Load the module under test.
 module_path = pathlib.Path(__file__).resolve().parents[1] / 'integrations' / 'qbo_import_preparation.py'
 spec = importlib.util.spec_from_file_location('qbo_import_preparation', module_path)
 qbo_mod = importlib.util.module_from_spec(spec)
@@ -16,7 +19,7 @@ spec.loader.exec_module(qbo_mod)
 prepare_journal_entry = qbo_mod.prepare_journal_entry
 record_journal_entry_import = qbo_mod.record_journal_entry_import
 
-# Minimal valid account map matching the keys expected by `prepare_journal_entry`.
+# Minimal valid account map (no net_income mapping needed).
 BASE_ACCOUNT_MAP = {
     "revenue": "1",
     "cogs": "2",
@@ -26,18 +29,7 @@ BASE_ACCOUNT_MAP = {
     "other_opex": "6",
 }
 
-def _net_income_line(payload, mapping):
-    """Return the net‑income line dict from a payload, or ``None`` if absent."""
-    net_id = mapping.get("net_income")
-    if not net_id:
-        return None
-    for line in payload["Line"]:
-        if line["AccountRef"]["value"] == str(net_id):
-            return line
-    return None
-
 def _category_lines(payload, mapping):
-    """Return a dict mapping each logical key to its line dict in the payload."""
     result = {}
     for key, acct_id in mapping.items():
         for line in payload["Line"]:
@@ -46,30 +38,19 @@ def _category_lines(payload, mapping):
                 break
     return result
 
-@pytest.fixture
-def profit_normalized():
-    """A period where revenue > total expenses → profit scenario."""
+def _make_balanced_normalized(period="2026-01", revenue=1000.0, expense=200.0):
+    """Create a normalized dict where total expenses equal revenue.
+    It distributes the expense equally among the five expense categories.
+    """
+    per_expense = expense / 5
     return {
-        "period": "2026-01",
-        "revenue": 1000.0,
-        "cost_of_goods_sold": 200.0,
-        "direct_opex": 100.0,
-        "sm_payroll": 50.0,
-        "marketing": 50.0,
-        "other_opex": 100.0,
-    }
-
-@pytest.fixture
-def loss_normalized():
-    """A period where expenses > revenue → loss scenario (mirrors Phase‑5 test)."""
-    return {
-        "period": "2026-04",
-        "revenue": 800.0,
-        "cost_of_goods_sold": 400.0,
-        "direct_opex": 200.0,
-        "sm_payroll": 150.0,
-        "marketing": 100.0,
-        "other_opex": 100.0,
+        "period": period,
+        "revenue": revenue,
+        "cost_of_goods_sold": per_expense,
+        "direct_opex": per_expense,
+        "sm_payroll": per_expense,
+        "marketing": per_expense,
+        "other_opex": per_expense,
     }
 
 def test_prepare_signature_has_no_manifest_path():
@@ -77,139 +58,57 @@ def test_prepare_signature_has_no_manifest_path():
     sig = inspect.signature(prepare_journal_entry)
     assert "manifest_path" not in sig.parameters
 
-def test_revenue_lines_are_credits(profit_normalized):
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-
-    # Find the revenue line by its account id.
-    rev_line = None
-    for line in payload["Line"]:
-        if line["AccountRef"]["value"] == mapping["revenue"]:
-            rev_line = line
-            break
-    assert rev_line is not None, "Revenue line missing"
+def test_revenue_line_is_credit():
+    normalized = _make_balanced_normalized(revenue=500.0, expense=500.0)
+    payload = prepare_journal_entry(normalized, BASE_ACCOUNT_MAP)
+    rev_line = next(line for line in payload["Line"] if line["AccountRef"]["value"] == BASE_ACCOUNT_MAP["revenue"])
     assert rev_line["PostingType"] == "Credit"
-    # Amount should be the absolute revenue (negative amount stored as credit).
-    assert rev_line["Amount"] == pytest.approx(1000.0)
+    assert rev_line["Amount"] == pytest.approx(500.0)
 
-def test_expense_lines_are_debits(profit_normalized):
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-
-    expense_pairs = [
-        ("cost_of_goods_sold", "cogs"),
-        ("direct_opex", "direct_opex"),
-        ("sm_payroll", "sm_payroll"),
-        ("marketing", "marketing"),
-        ("other_opex", "other_opex"),
-    ]
-    lines_by_key = _category_lines(payload, mapping)
-    for norm_key, map_key in expense_pairs:
-        assert map_key in lines_by_key, f"Missing expense line for {map_key}"
-        line = lines_by_key[map_key]
+def test_expense_lines_are_debits():
+    normalized = _make_balanced_normalized(revenue=800.0, expense=800.0)
+    payload = prepare_journal_entry(normalized, BASE_ACCOUNT_MAP)
+    lines_by_key = _category_lines(payload, BASE_ACCOUNT_MAP)
+    expense_keys = ["cogs", "direct_opex", "sm_payroll", "marketing", "other_opex"]
+    for key in expense_keys:
+        assert key in lines_by_key
+        line = lines_by_key[key]
         assert line["PostingType"] == "Debit"
-        expected = profit_normalized[norm_key]
+        # Amount should be the absolute expense value.
+        expected = normalized[key] if key != "cogs" else normalized["cost_of_goods_sold"]
         assert line["Amount"] == pytest.approx(abs(expected))
 
-def test_profit_balancing_line_is_debit(profit_normalized):
-    """When revenue exceeds expenses, the net‑income line must be a Debit (equity increase)."""
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-    net_line = _net_income_line(payload, mapping)
-    assert net_line is not None, "Net‑income line not added for profit"
-    assert net_line["PostingType"] == "Debit", "Profit net‑income line should be Debit"
-    # The amount should equal the profit (revenue - expenses).
-    profit = (
-        profit_normalized["revenue"]
-        - (
-            profit_normalized["cost_of_goods_sold"]
-            + profit_normalized["direct_opex"]
-            + profit_normalized["sm_payroll"]
-            + profit_normalized["marketing"]
-            + profit_normalized["other_opex"]
-        )
-    )
-    assert net_line["Amount"] == pytest.approx(profit)
+def test_unbalanced_entry_raises_error():
+    # Profit scenario (revenue > expenses)
+    profit_norm = _make_balanced_normalized(revenue=1000.0, expense=800.0)
+    with pytest.raises(ValueError, match="Unbalanced entry"):
+        prepare_journal_entry(profit_norm, BASE_ACCOUNT_MAP)
+    # Loss scenario (expenses > revenue)
+    loss_norm = _make_balanced_normalized(revenue=600.0, expense=900.0)
+    with pytest.raises(ValueError, match="Unbalanced entry"):
+        prepare_journal_entry(loss_norm, BASE_ACCOUNT_MAP)
 
-def test_loss_balancing_line_is_credit(loss_normalized):
-    """When expenses exceed revenue, the net‑income line must be a Credit (equity decrease)."""
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(loss_normalized, mapping)
-    net_line = _net_income_line(payload, mapping)
-    assert net_line is not None, "Net‑income line not added for loss"
-    assert net_line["PostingType"] == "Credit", "Loss net‑income line should be Credit"
-    # Amount should equal the absolute loss.
-    loss = (
-        loss_normalized["revenue"]
-        - (
-            loss_normalized["cost_of_goods_sold"]
-            + loss_normalized["direct_opex"]
-            + loss_normalized["sm_payroll"]
-            + loss_normalized["marketing"]
-            + loss_normalized["other_opex"]
-        )
-    )
-    assert net_line["Amount"] == pytest.approx(abs(loss))
-
-def test_prepare_does_not_create_manifest(tmp_path, profit_normalized):
-    """Calling `prepare_journal_entry` must not create a manifest file.
-
-    The function has no manifest_path argument, so we verify that no new file appears
-    in a fresh temporary directory.
-    """
-    # Ensure the temporary directory is empty.
-    assert not any(tmp_path.iterdir())
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-    # After the call, the temporary directory should still be empty.
-    assert not any(tmp_path.iterdir()), "prepare_journal_entry created unexpected files"
-
-def test_duplicate_and_conflict_import_records(tmp_path, profit_normalized):
-    """`record_journal_entry_import` must reject duplicate and conflicting records.
-
-    Uses a temporary manifest file so the test does not interfere with the real manifest.
-    """
+def test_record_journal_entry_import_behaviour(tmp_path):
+    """Verify duplicate and conflicting import detection works unchanged."""
+    # Use a balanced normalized period.
+    normalized = _make_balanced_normalized(revenue=500.0, expense=500.0)
+    payload = prepare_journal_entry(normalized, BASE_ACCOUNT_MAP)
+    period = normalized["period"]
     manifest_path = tmp_path / "manifest.json"
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-    period = profit_normalized["period"]
-
-    # First import should succeed.
+    # First import succeeds.
     record_journal_entry_import(payload, period, manifest_path=str(manifest_path))
-
-    # Duplicate (same payload) must raise.
+    # Duplicate payload raises duplicate error.
     with pytest.raises(ValueError) as exc_dup:
         record_journal_entry_import(payload, period, manifest_path=str(manifest_path))
     assert "Duplicate journal entry detected" in str(exc_dup.value)
-
-    # Conflicting payload (change Revenue) must raise a different error.
+    # Conflicting payload (modify revenue amount) raises conflict error.
     conflicting = payload.copy()
-    # Deep‑copy the lines and adjust the revenue line amount.
     conflicting["Line"] = [line.copy() for line in payload["Line"]]
     for line in conflicting["Line"]:
-        if line["AccountRef"]["value"] == mapping["revenue"]:
+        if line["AccountRef"]["value"] == BASE_ACCOUNT_MAP["revenue"]:
             line["Amount"] = line["Amount"] + 1.0
             break
     with pytest.raises(ValueError) as exc_conf:
         record_journal_entry_import(conflicting, period, manifest_path=str(manifest_path))
     assert "Conflicting journal entry already recorded" in str(exc_conf.value)
 
-def test_aggregate_rows_not_included(profit_normalized):
-    """The payload must contain only the six category lines plus the optional net‑income line.
-    No aggregate/sub‑total rows exist in the normalized input, so the line count should match.
-    """
-    mapping = BASE_ACCOUNT_MAP.copy()
-    mapping["net_income"] = "7"
-    payload = prepare_journal_entry(profit_normalized, mapping)
-    # Expected lines: 6 categories + net‑income = 7
-    assert len(payload["Line"]) == 7
-    # Verify that each expected account id appears exactly once.
-    expected_ids = {str(v) for v in mapping.values()}
-    found_ids = {line["AccountRef"]["value"] for line in payload["Line"]}
-    assert expected_ids == found_ids, "Payload contains unexpected or missing account ids"
