@@ -1,0 +1,459 @@
+{
+  "metadata": {
+    "profile_version": "1.0.0",
+    "generated_at": "2026-10-15T14:36:42.580738+00:00",
+    "workbook_path": "E:/FinAudit-Workbench/data/input/ABC Inc - Financial Statements.xlsx",
+    "workbook_sha256": "75da8d679a89551f9e46b3563b7cfc724d9aaeabe0444b0214d455a0b335a0ea",
+    "specification_reference": "docs/workbook_ingestion_spec.md"
+  },
+  "sheet_dimensions": {
+    "Income Statement": {
+      "max_row": 107,
+      "max_column": 25,
+      "period_start_column": 4,
+      "period_end_column": 21,
+      "period_columns_excel": "D:U",
+      "trailing_start_column": 22,
+      "trailing_end_column": 25,
+      "trailing_columns_excel": "V:Y",
+      "trailing_populated_cells": 0
+    },
+    "Balance Sheet": {
+      "max_row": 71,
+      "max_column": 26,
+      "period_start_column": 3,
+      "period_end_column": 20,
+      "period_columns_excel": "C:T",
+      "trailing_start_column": 21,
+      "trailing_end_column": 26,
+      "trailing_columns_excel": "U:Z",
+      "trailing_populated_cells": 0
+    }
+  },
+  "reporting_periods": {
+    "period_count": 18,
+    "chronological_start": "2025-01",
+    "chronological_end": "2026-06",
+    "canonical_chronological_periods": [
+      "2025-01",
+      "2025-02",
+      "2025-03",
+      "2025-04",
+      "2025-05",
+      "2025-06",
+      "2025-07",
+      "2025-08",
+      "2025-09",
+      "2025-10",
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06"
+    ],
+    "source_reverse_chronological_periods": [
+      "2026-06",
+      "2026-05",
+      "2026-04",
+      "2026-03",
+      "2026-02",
+      "2026-01",
+      "2025-12",
+      "2025-11",
+      "2025-10",
+      "2025-09",
+      "2025-08",
+      "2025-07",
+      "2025-06",
+      "2025-05",
+      "2025-04",
+      "2025-03",
+      "2025-02",
+      "2025-01"
+    ],
+    "cross_sheet_periods_aligned": true
+  },
+  "row_classification_counts": {
+    "Income Statement": {
+      "total_rows": 107,
+      "by_classification": {
+        "METADATA": 3,
+        "SPACER": 7,
+        "HEADER": 1,
+        "SECTION_HEADING": 3,
+        "DETAIL_ACCOUNT": 83,
+        "SUBTOTAL": 5,
+        "CALCULATED_RESULT": 3,
+        "SUBSECTION_HEADING": 2
+      }
+    },
+    "Balance Sheet": {
+      "total_rows": 71,
+      "by_classification": {
+        "METADATA": 3,
+        "SPACER": 3,
+        "HEADER": 1,
+        "SECTION_HEADING": 2,
+        "SUBSECTION_HEADING": 8,
+        "DETAIL_ACCOUNT": 44,
+        "SUBTOTAL": 6,
+        "CALCULATED_RESULT": 4
+      }
+    }
+  },
+  "account_group_definitions": {
+    "Income Statement": {
+      "Income": {
+        "start_row": 7,
+        "end_row": 14,
+        "subtotal_row": 14,
+        "detail_rows": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ]
+      },
+      "Cost of Goods Sold": {
+        "start_row": 16,
+        "end_row": 24,
+        "subtotal_row": 24,
+        "detail_rows": [
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ]
+      },
+      "Gross Profit": {
+        "row": 26,
+        "type": "CALCULATED_RESULT"
+      },
+      "Direct OpEx": {
+        "start_row": 29,
+        "end_row": 46,
+        "detail_rows": [
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46
+        ]
+      },
+      "Sales & Marketing Payroll": {
+        "heading_row": 47,
+        "start_row": 48,
+        "end_row": 58,
+        "subtotal_row": 59,
+        "detail_rows": [
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58
+        ]
+      },
+      "Marketing": {
+        "heading_row": 60,
+        "start_row": 61,
+        "end_row": 70,
+        "subtotal_row": 71,
+        "detail_rows": [
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70
+        ]
+      },
+      "Other OpEx": {
+        "start_row": 72,
+        "end_row": 102,
+        "detail_rows": [
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79,
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99,
+          100,
+          101,
+          102
+        ]
+      },
+      "Total OpEx": {
+        "row": 103,
+        "type": "SUBTOTAL"
+      },
+      "Operating Income": {
+        "row": 105,
+        "type": "CALCULATED_RESULT"
+      },
+      "Net Income": {
+        "row": 107,
+        "type": "CALCULATED_RESULT"
+      }
+    },
+    "Balance Sheet": {
+      "Current Assets": {
+        "heading_row": 8,
+        "Cash and Cash Equivalents": {
+          "heading_row": 9,
+          "detail_rows": [
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "subtotal_row": 15
+        },
+        "Other Current Assets": {
+          "detail_rows": [
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "subtotal_row": 27
+        }
+      },
+      "Fixed Assets": {
+        "heading_row": 28,
+        "detail_rows": [
+          29,
+          30,
+          31,
+          32
+        ],
+        "subtotal_row": 33
+      },
+      "Other Assets": {
+        "heading_row": 34,
+        "detail_rows": [
+          35
+        ],
+        "calculated_row": 36
+      },
+      "Total Assets": {
+        "row": 37,
+        "type": "CALCULATED_RESULT"
+      },
+      "Current Liabilities": {
+        "heading_row": 40,
+        "Other Current Liabilities": {
+          "heading_row": 41,
+          "detail_rows": [
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53
+          ],
+          "subtotal_row": 54
+        }
+      },
+      "Long Term Liabilities": {
+        "heading_row": 55,
+        "detail_rows": [
+          56,
+          57
+        ],
+        "subtotal_row": 58
+      },
+      "Total Liabilities": {
+        "row": 59,
+        "type": "SUBTOTAL"
+      },
+      "Equity": {
+        "heading_row": 60,
+        "detail_rows": [
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69
+        ],
+        "subtotal_row": 70
+      },
+      "Total Liabilities and Equity": {
+        "row": 71,
+        "type": "CALCULATED_RESULT"
+      }
+    }
+  },
+  "missing_value_statistics": {
+    "Income Statement": {
+      "total_period_cells": 1926,
+      "detail_account_count": 83,
+      "detail_account_total_cells": 1494,
+      "detail_account_populated_cells": 1494,
+      "detail_account_literal_zero_cells": 452,
+      "detail_account_formula_zero_cells": 0,
+      "detail_account_blank_cells": 0,
+      "detail_account_missing_effective_values": 0,
+      "dormant_account_count": 4,
+      "dormant_account_rows": [
+        89,
+        90,
+        91,
+        92
+      ],
+      "dormant_account_zero_cells": 72,
+      "formula_bearing_row_count": 8,
+      "formula_bearing_total_cells": 144,
+      "formula_missing_cached_values": 0
+    },
+    "Balance Sheet": {
+      "total_period_cells": 1278,
+      "detail_account_count": 44,
+      "detail_account_total_cells": 792,
+      "detail_account_populated_cells": 792,
+      "detail_account_literal_zero_cells": 151,
+      "detail_account_formula_zero_cells": 0,
+      "detail_account_blank_cells": 0,
+      "detail_account_missing_effective_values": 0,
+      "dormant_account_count": 0,
+      "dormant_account_rows": [],
+      "dormant_account_zero_cells": 0,
+      "formula_bearing_row_count": 10,
+      "formula_bearing_total_cells": 180,
+      "formula_missing_cached_values": 0
+    }
+  },
+  "known_source_anomalies": {
+    "measured_statistics": {
+      "dec_2025_tax_benefit_row": 101,
+      "dec_2025_tax_benefit_usd": -1244429.84,
+      "dec_2025_total_opex_row": 103,
+      "dec_2025_total_opex_usd": -402142.0900000001,
+      "dec_2025_operating_income_row": 105,
+      "dec_2025_operating_income_usd": 534551.4100000001,
+      "dec_2025_stock_based_compensation_row": 99,
+      "dec_2025_stock_based_compensation_usd": 334660.53,
+      "hsa_liability_row": 48,
+      "hsa_liability_negative_period_count": 16,
+      "hsa_liability_negative_periods": [
+        "2026-06",
+        "2026-05",
+        "2026-04",
+        "2026-03",
+        "2026-02",
+        "2026-01",
+        "2025-10",
+        "2025-09",
+        "2025-08",
+        "2025-07",
+        "2025-06",
+        "2025-05",
+        "2025-04",
+        "2025-03",
+        "2025-02",
+        "2025-01"
+      ],
+      "hsa_liability_minimum_value_usd": -1450.0,
+      "unicode_en_dash_labels": [
+        {
+          "row": 35,
+          "label": "Deferred Tax Asset \u2013 NOL",
+          "contains_en_dash": true
+        },
+        {
+          "row": 68,
+          "label": "Additional Paid-in Capital \u2013 Stock Options",
+          "contains_en_dash": true
+        }
+      ],
+      "trailing_whitespace_labels": [
+        {
+          "row": 53,
+          "label": "Credit Card 2 ",
+          "has_trailing_space": true
+        }
+      ],
+      "trailing_empty_columns_populated_cell_count": {
+        "Income Statement": 0,
+        "Balance Sheet": 0
+      }
+    },
+    "documented_observations": {
+      "accounting_basis_transition": "The source workbook reflects a hybrid cash/accrual methodology: predominantly Cash basis for early 2025 transitioning to Accrual in late 2025.",
+      "december_2025_tax_benefit": "Row 101 exhibits an isolated negative OpEx entry (-$1,244,429.84) in December 2025, which represents a year-end tax benefit rather than recurring operational income. This causes Total OpEx to become negative (-$402,142.09) and Operating Income to be $534,551.41.",
+      "stock_based_compensation": "Row 99 reflects an isolated $334,660.53 expense in December 2025 (zero in all other 17 periods), representing an annual stock-based compensation adjustment.",
+      "hsa_liability_debit_balance": "Row 48 on Balance Sheet exhibits a debit balance (negative liability) in 11 periods, reaching -$4,171.74, indicating advance employer contributions or payroll timing differences.",
+      "dormant_accounts": "Rows 89-92 in Income Statement represent dormant detail accounts with explicit zero values across all 18 periods, preserved in normalized ingestion without data loss."
+    }
+  }
+}

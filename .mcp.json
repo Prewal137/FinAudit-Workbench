@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "finaudit-quickbooks": {
+      "type": "stdio",
+      "command": "E:\\FinAudit-Workbench\\.venv-mcp\\Scripts\\python.exe",
+      "args": [
+        "E:\\FinAudit-Workbench\\integrations\\qbo_mcp_server.py"
+      ],
+      "env": {}
+    }
+  }
+}

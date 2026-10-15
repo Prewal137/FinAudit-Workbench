@@ -66,18 +66,48 @@ MOCK_PNL = {
     },
 }
 
-@mock.patch("integrations.qbo_mcp_server.get_profit_and_loss", return_value=MOCK_PNL)
-def test_normalise_pnl(mock_get):
-    # Import normalise_pnl via dynamic load (see top of file)
-    # Simulate a call for January 2025
+@mock.patch("integrations.qbo_mcp_server.get_profit_and_loss", return_value={
+    "period": {"start_date": "2025-03-01", "end_date": "2025-03-31"},
+    "report": {
+        "total_revenue": "6000.5",
+        "cost_of_goods_sold": "2500.25",
+        "gross_profit": "3500.25",
+        "operating_expenses": "1600.00",
+        "net_income": "1300.00",
+        "net_operating_income": "2000.00",
+        "total_other_expenses": "300.00",
+    },
+})
+def test_normalise_pnl_strings(mock_get):
     pnl = mock_get.return_value
     norm = normalise_pnl(pnl)
-    assert norm["period"] == "2025-01-01"
-    assert norm["revenue"] == 5000.0
-    assert norm["cost_of_goods_sold"] == 2000.0
-    assert norm["gross_profit"] == 3000.0  # revenue - cogs
-    assert norm["operating_expenses"] == 1500.0
-    assert norm["net_income"] == 1200.0
+    assert norm["period"] == "2025-03-01"
+    assert norm["revenue"] == 6000.5
+    assert norm["cost_of_goods_sold"] == 2500.25
+    assert norm["gross_profit"] == 3500.25
+    assert norm["operating_expenses"] == 1600.0
+    assert norm["net_income"] == 1300.0
+    assert norm["net_operating_income"] == 2000.0
+    assert norm["total_other_expenses"] == 300.0
+
+@mock.patch("integrations.qbo_mcp_server.get_profit_and_loss", return_value={
+    "period": {"start_date": "2025-04-01", "end_date": "2025-04-30"},
+    "report": {
+        "total_revenue": "not_a_number",
+        "cost_of_goods_sold": None,
+        "operating_expenses": "abc",
+        "net_income": None,
+    },
+})
+def test_normalise_pnl_invalid(mock_get):
+    pnl = mock_get.return_value
+    norm = normalise_pnl(pnl)
+    assert norm["revenue"] is None
+    assert norm["cost_of_goods_sold"] is None
+    assert norm["operating_expenses"] is None
+    assert norm["net_income"] is None
+
+
 
 def test_build_metrics_from_quickbooks_two_months():
     # build_metrics_from_quickbooks is loaded via dynamic import above

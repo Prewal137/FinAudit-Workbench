@@ -1,0 +1,78 @@
+cases:
+  - id: normal_movement
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+  - id: large_change
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+  - id: missing_values
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+  - id: high_expense
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+  - id: unsupported_causal
+    expected:
+      numeric: true
+      completeness: true
+      evidence: false
+      commentary: true
+  - id: deliberate_numeric_error
+    expected:
+      numeric: false
+      completeness: true
+      evidence: true
+      commentary: true
+  - id: ttm_complete
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+      ttm_present: true
+  - id: ttm_incomplete
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+      ttm_present: false
+  - id: validation_gate_block
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+      validation_gate_pass: false
+  - id: validation_gate_pass
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+      validation_gate_pass: true
+  - id: missing_label
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: false
+  - id: contradictory_fact
+    expected:
+      numeric: true
+      completeness: true
+      evidence: true
+      commentary: true
+      factual_consistency: false

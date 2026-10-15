@@ -1,0 +1,29 @@
+{
+  "period": {
+    "start_date": "2025-12-01",
+    "end_date": "2025-12-31"
+  },
+  "report": {
+    "total_revenue": "190029.49",
+    "cost_of_goods_sold": "57620.17",
+    "gross_profit": "132409.32",
+    "operating_expenses": "406338.39",
+    "net_operating_income": "-273929.07",
+    "total_other_expenses": "-808480.48",
+    "net_income": "534551.41"
+  },
+  "metric_status": {
+    "total_revenue": "available",
+    "cost_of_goods_sold": "available",
+    "gross_profit": "available",
+    "operating_expenses": "available",
+    "net_operating_income": "available",
+    "total_other_expenses": "available",
+    "net_income": "available"
+  },
+  "no_report_data": false,
+  "currency": "USD",
+  "report_name": "ProfitAndLoss",
+  "report_basis": "Accrual",
+  "retrieved_at": "2026-10-15T20:16:50+00:00"
+}

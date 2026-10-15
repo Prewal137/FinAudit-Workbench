@@ -231,11 +231,17 @@ def generate_report(source_name: str, is_stmt, bs_stmt, val_report, metrics, rep
 
     # Section 12 – Limitations and Reviewer Caveats
     lines.append("## 12. Limitations and Reviewer Caveats\n")
-    lines.append("- The analysis relies entirely on the management‑account workbook provided. No external source data (e.g., bank statements, tax filings) were examined.\n")
-    lines.append("- The accounting basis (cash vs. accrual) was not independently verified; period‑to‑period comparability may be affected by any transition.\n")
-    lines.append("- TTM windows are only presented when a full 12‑month consecutive period sequence exists.\n")
-    lines.append("- No cash‑flow statement is available; liquidity analysis is limited to balance‑sheet snapshots.\n")
-    lines.append("- All figures are presented to two decimal places; rounding may cause minor differences from source cell values.\n")
+    if is_quickbooks:
+        lines.append("- The report uses live QuickBooks Profit and Loss data for the requested period, on the accounting basis reported by QuickBooks.\n")
+        lines.append("- Balance‑sheet data was not retrieved in this run, so liquidity analysis and balance‑sheet reconciliation were not assessed.\n")
+        lines.append("- No external documents were reviewed, and the accounting basis was not independently verified.\n")
+        lines.append("- No comprehensive anomaly investigation was performed beyond the limited validation steps.\n")
+    else:
+        lines.append("- The analysis relies entirely on the management‑account workbook provided. No external source data (e.g., bank statements, tax filings) were examined.\n")
+        lines.append("- The accounting basis (cash vs. accrual) was not independently verified; period‑to‑period comparability may be affected by any transition.\n")
+        lines.append("- TTM windows are only presented when a full 12‑month consecutive period sequence exists.\n")
+        lines.append("- No cash‑flow statement is available; liquidity analysis is limited to balance‑sheet snapshots.\n")
+        lines.append("- All figures are presented to two decimal places; rounding may cause minor differences from source cell values.\n")
 
     # Write markdown file
     report_path.parent.mkdir(parents=True, exist_ok=True)

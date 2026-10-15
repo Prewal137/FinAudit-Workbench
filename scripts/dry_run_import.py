@@ -100,37 +100,37 @@ def main():
         coa_snapshot = list_chart_of_accounts_dict()
     except Exception as exc:
         print(f"ERROR: Unable to retrieve chart of accounts: {exc}")
-        coa_snapshot = []
-        # Ensure the snapshot is a dict with an "accounts" key for later validation.
-        if isinstance(coa_snapshot, list):
-            coa_snapshot = {"accounts": coa_snapshot}
-        # --------------------------------------------------------------
-        # Validate account mapping against chart snapshot (duplicate IDs, unknown IDs, net_income equity)
-        validation_errors = []
-        # Build known IDs set
-        known_ids = {str(a.get("id")) for a in coa_snapshot.get("accounts", [])}
-        if account_map is not None:
-            for key, aid in account_map.items():
-                if str(aid) not in known_ids:
-                    validation_errors.append(f"Mapping key '{key}' references unknown account ID {aid}")
-            # Duplicate detection
-            id_to_keys = {}
-            for key, aid in account_map.items():
-                id_to_keys.setdefault(str(aid), []).append(key)
-            dup = {aid: ks for aid, ks in id_to_keys.items() if len(ks) > 1}
-            if dup:
-                dup_msg = ", ".join([f"ID {aid} used for {', '.join(ks)}" for aid, ks in dup.items()])
-                validation_errors.append(f"Duplicate account ID usage: {dup_msg}")
-            # net_income equity check
-            net_id = account_map.get("net_income")
-            if net_id:
-                acct = next((a for a in coa_snapshot.get("accounts", []) if str(a.get("id")) == str(net_id)), None)
-                if acct and acct.get("type") != "Equity":
-                    validation_errors.append(f"Balancing account ID {net_id} is not an Equity account (type={acct.get('type')})")
-        if validation_errors:
-            global_validation_error_msg = "; ".join(validation_errors)
-        else:
-            global_validation_error_msg = None
+        coa_snapshot = {"accounts": []}
+    # Ensure the snapshot is a dict with an "accounts" key for later validation.
+    if isinstance(coa_snapshot, list):
+        coa_snapshot = {"accounts": coa_snapshot}
+    # --------------------------------------------------------------
+    # Validate account mapping against chart snapshot (duplicate IDs, unknown IDs, net_income equity)
+    validation_errors = []
+    # Build known IDs set
+    known_ids = {str(a.get("id")) for a in coa_snapshot.get("accounts", [])}
+    if account_map is not None:
+        for key, aid in account_map.items():
+            if str(aid) not in known_ids:
+                validation_errors.append(f"Mapping key '{key}' references unknown account ID {aid}")
+        # Duplicate detection
+        id_to_keys = {}
+        for key, aid in account_map.items():
+            id_to_keys.setdefault(str(aid), []).append(key)
+        dup = {aid: ks for aid, ks in id_to_keys.items() if len(ks) > 1}
+        if dup:
+            dup_msg = ", ".join([f"ID {aid} used for {', '.join(ks)}" for aid, ks in dup.items()])
+            validation_errors.append(f"Duplicate account ID usage: {dup_msg}")
+        # net_income equity check
+        net_id = account_map.get("net_income")
+        if net_id:
+            acct = next((a for a in coa_snapshot.get("accounts", []) if str(a.get("id")) == str(net_id)), None)
+            if acct and acct.get("type") != "Equity":
+                validation_errors.append(f"Balancing account ID {net_id} is not an Equity account (type={acct.get('type')})")
+    if validation_errors:
+        global_validation_error_msg = "; ".join(validation_errors)
+    else:
+        global_validation_error_msg = None
 
     # Ingest workbook.
     try:
@@ -168,11 +168,21 @@ def main():
             errors[p] = "Missing account mapping file – cannot prepare payload"
             continue
         try:
+            # Check for duplicate posting before preparing payload.
+            # First prepare payload, then invoke duplicate detection; abort if duplicate.
             payload = prepare_journal_entry(norm, account_map, chart_of_accounts=coa_snapshot)
-            # Compute totals for convenience.
-            debit_total = sum(l["Amount"] for l in payload["Line"] if l["PostingType"] == "Debit")
-            credit_total = sum(l["Amount"] for l in payload["Line"] if l["PostingType"] == "Credit")
-            period_entries[p] = {"payload": payload, "totals": {"debit": debit_total, "credit": credit_total}}
+            from integrations.qbo_mcp_server import is_duplicate_journal_entry
+            if is_duplicate_journal_entry(payload, p):
+                errors[p] = f"Duplicate journal entry detected for period {p}"
+                continue
+            try:
+                # Perform duplicate check. If the check raises, treat as a blocker.
+                if is_duplicate_journal_entry(payload, p):
+                    errors[p] = f"Duplicate journal entry detected for period {p}"
+                    continue
+            except Exception as dup_exc:
+                errors[p] = f"Duplicate check failed: {dup_exc}"
+                continue
         except Exception as exc:
             errors[p] = str(exc)
 

@@ -43,8 +43,10 @@ def build_balanced_payload(normalized: dict, account_map: dict) -> dict:
         lines_acc.append({
             "Amount": round(abs(amount), 2),
             "DetailType": "JournalEntryLineDetail",
-            "PostingType": posting_type,
-            "AccountRef": {"value": str(account_map[acct_key])},
+            "JournalEntryLineDetail": {
+                "PostingType": posting_type,
+                "AccountRef": {"value": str(account_map[acct_key])}
+            }
         })
 
     lines: list = []
@@ -80,8 +82,8 @@ def build_balanced_payload(normalized: dict, account_map: dict) -> dict:
         _add_line(amount, posting, "net_income", lines)
 
     # Verify totals.
-    total_debits = sum(l["Amount"] for l in lines if l["PostingType"] == "Debit")
-    total_credits = sum(l["Amount"] for l in lines if l["PostingType"] == "Credit")
+    total_debits = sum(l["Amount"] for l in lines if (l.get("PostingType") or l.get("JournalEntryLineDetail", {}).get("PostingType")) == "Debit")
+    total_credits = sum(l["Amount"] for l in lines if (l.get("PostingType") or l.get("JournalEntryLineDetail", {}).get("PostingType")) == "Credit")
     if abs(total_debits - total_credits) > 0.01:
         logging.warning(f"Unbalanced payload for period {normalized['period']}: debits {total_debits:.2f} != credits {total_credits:.2f}")
 
@@ -164,9 +166,11 @@ def _run_script():
         total_debits = 0.0
         total_credits = 0.0
         for line in payload.get("Line", []):
-            acct_id = line["AccountRef"]["value"]
+            # Account reference may be top‑level or nested under JournalEntryLineDetail.
+            acct_id = line.get("AccountRef", {}).get("value") or line.get("JournalEntryLineDetail", {}).get("AccountRef", {}).get("value")
             acct_name = id_to_name.get(acct_id, "<unknown>")
-            posting = line["PostingType"]
+            # Posting type may be top‑level or nested.
+            posting = line.get("PostingType") or line.get("JournalEntryLineDetail", {}).get("PostingType")
             amount = line["Amount"]
             summary_lines.append(f"| {acct_id} | {acct_name} | {posting} | ${amount:,.2f} |")
             if posting == "Debit":

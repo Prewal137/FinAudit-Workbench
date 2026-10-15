@@ -1,0 +1,211 @@
+[
+  {
+    "id": "normal_movement",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "large_change",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "missing_values",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "high_expense",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "unsupported_causal",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": false,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": false,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "deliberate_numeric_error",
+    "numeric_correctness": false,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": false,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "ttm_complete",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": true,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true,
+      "ttm_present": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "ttm_incomplete",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true,
+      "ttm_present": false
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "validation_gate_block",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": false,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true,
+      "validation_gate_pass": false
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "validation_gate_pass",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true,
+      "validation_gate_pass": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "missing_label",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": false,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": false
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "contradictory_fact",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "ttm_present": false,
+    "validation_gate_pass": true,
+    "factual_consistency": false,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true,
+      "factual_consistency": false
+    },
+    "overall_pass": true
+  }
+]

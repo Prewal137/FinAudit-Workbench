@@ -37,3 +37,5 @@ def test_quickbooks_report_content(tmp_path: pathlib.Path):
     assert "- No supported anomalies found for QuickBooks source." in content
     # Ensure workbook-specific recommendation lines are absent
     assert "Reconcile the December 2025 tax benefit" not in content
+    # Ensure workbook-specific limitation text is absent
+    assert "The analysis relies entirely on the management‑account workbook" not in content

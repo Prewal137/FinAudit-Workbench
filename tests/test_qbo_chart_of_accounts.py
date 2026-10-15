@@ -1,6 +1,10 @@
 import pytest
 
-import integrations.qbo_mcp_server as qbo
+import importlib.util, pathlib
+module_path = pathlib.Path(__file__).resolve().parents[1] / 'integrations' / 'qbo_mcp_server.py'
+spec = importlib.util.spec_from_file_location('qbo_mcp_server', module_path)
+qbo = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(qbo)
 
 
 def _mock_response(status_code: int = 200, json_data: dict = None, method: str = "GET", url: str = "http://test.local"):

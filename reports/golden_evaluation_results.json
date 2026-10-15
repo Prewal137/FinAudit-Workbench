@@ -1,0 +1,86 @@
+[
+  {
+    "id": "normal_movement",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "large_change",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "missing_values",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "high_expense",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "unsupported_causal",
+    "numeric_correctness": true,
+    "completeness": true,
+    "evidence_support": false,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": true,
+      "completeness": true,
+      "evidence": false,
+      "commentary": true
+    },
+    "overall_pass": true
+  },
+  {
+    "id": "deliberate_numeric_error",
+    "numeric_correctness": false,
+    "completeness": true,
+    "evidence_support": true,
+    "commentary_quality": true,
+    "expected": {
+      "numeric": false,
+      "completeness": true,
+      "evidence": true,
+      "commentary": true
+    },
+    "overall_pass": true
+  }
+]

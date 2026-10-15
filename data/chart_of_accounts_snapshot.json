@@ -1,0 +1,538 @@
+{
+  "accounts": [
+    {
+      "id": "69",
+      "name": "Accounting",
+      "type": "Expense",
+      "sub_type": "LegalProfessionalFees"
+    },
+    {
+      "id": "33",
+      "name": "Accounts Payable (A/P)",
+      "type": "Accounts Payable",
+      "sub_type": "AccountsPayable"
+    },
+    {
+      "id": "84",
+      "name": "Accounts Receivable (A/R)",
+      "type": "Accounts Receivable",
+      "sub_type": "AccountsReceivable"
+    },
+    {
+      "id": "7",
+      "name": "Advertising",
+      "type": "Expense",
+      "sub_type": "AdvertisingPromotional"
+    },
+    {
+      "id": "89",
+      "name": "Arizona Dept. of Revenue Payable",
+      "type": "Other Current Liability",
+      "sub_type": "GlobalTaxPayable"
+    },
+    {
+      "id": "55",
+      "name": "Automobile",
+      "type": "Expense",
+      "sub_type": "Auto"
+    },
+    {
+      "id": "8",
+      "name": "Bank Charges",
+      "type": "Expense",
+      "sub_type": "BankCharges"
+    },
+    {
+      "id": "85",
+      "name": "Billable Expense Income",
+      "type": "Income",
+      "sub_type": "ServiceFeeIncome"
+    },
+    {
+      "id": "90",
+      "name": "Board of Equalization Payable",
+      "type": "Other Current Liability",
+      "sub_type": "GlobalTaxPayable"
+    },
+    {
+      "id": "70",
+      "name": "Bookkeeper",
+      "type": "Expense",
+      "sub_type": "LegalProfessionalFees"
+    },
+    {
+      "id": "73",
+      "name": "Building Repairs",
+      "type": "Expense",
+      "sub_type": "RepairMaintenance"
+    },
+    {
+      "id": "35",
+      "name": "Checking",
+      "type": "Bank",
+      "sub_type": "Checking"
+    },
+    {
+      "id": "9",
+      "name": "Commissions & fees",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "74",
+      "name": "Computer Repairs",
+      "type": "Expense",
+      "sub_type": "RepairMaintenance"
+    },
+    {
+      "id": "80",
+      "name": "Cost of Goods Sold",
+      "type": "Cost of Goods Sold",
+      "sub_type": "SuppliesMaterialsCogs"
+    },
+    {
+      "id": "59",
+      "name": "Cost of Labor",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "47",
+      "name": "Decks and Patios",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "64",
+      "name": "Decks and Patios",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "40",
+      "name": "Depreciation",
+      "type": "Other Expense",
+      "sub_type": "Depreciation"
+    },
+    {
+      "id": "39",
+      "name": "Depreciation",
+      "type": "Fixed Asset",
+      "sub_type": "AccumulatedDepreciation"
+    },
+    {
+      "id": "82",
+      "name": "Design income",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "86",
+      "name": "Discounts given",
+      "type": "Income",
+      "sub_type": "DiscountsRefundsGiven"
+    },
+    {
+      "id": "28",
+      "name": "Disposal Fees",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "10",
+      "name": "Dues & Subscriptions",
+      "type": "Expense",
+      "sub_type": "DuesSubscriptions"
+    },
+    {
+      "id": "62",
+      "name": "Equipment Rental",
+      "type": "Expense",
+      "sub_type": "EquipmentRental"
+    },
+    {
+      "id": "29",
+      "name": "Equipment Rental",
+      "type": "Expense",
+      "sub_type": "EquipmentRental"
+    },
+    {
+      "id": "75",
+      "name": "Equipment Repairs",
+      "type": "Expense",
+      "sub_type": "RepairMaintenance"
+    },
+    {
+      "id": "5",
+      "name": "Fees Billed",
+      "type": "Income",
+      "sub_type": "ServiceFeeIncome"
+    },
+    {
+      "id": "65",
+      "name": "Fountain and Garden Lighting",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "48",
+      "name": "Fountains and Garden Lighting",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "56",
+      "name": "Fuel",
+      "type": "Expense",
+      "sub_type": "Auto"
+    },
+    {
+      "id": "76",
+      "name": "Gas and Electric",
+      "type": "Expense",
+      "sub_type": "Utilities"
+    },
+    {
+      "id": "60",
+      "name": "Installation",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "52",
+      "name": "Installation",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "11",
+      "name": "Insurance",
+      "type": "Expense",
+      "sub_type": "Insurance"
+    },
+    {
+      "id": "25",
+      "name": "Interest Earned",
+      "type": "Other Income",
+      "sub_type": "InterestEarned"
+    },
+    {
+      "id": "81",
+      "name": "Inventory Asset",
+      "type": "Other Current Asset",
+      "sub_type": "Inventory"
+    },
+    {
+      "id": "58",
+      "name": "Job Expenses",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "63",
+      "name": "Job Materials",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "46",
+      "name": "Job Materials",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "51",
+      "name": "Labor",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "45",
+      "name": "Landscaping Services",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "71",
+      "name": "Lawyer",
+      "type": "Expense",
+      "sub_type": "LegalProfessionalFees"
+    },
+    {
+      "id": "12",
+      "name": "Legal & Professional Fees",
+      "type": "Expense",
+      "sub_type": "LegalProfessionalFees"
+    },
+    {
+      "id": "43",
+      "name": "Loan Payable",
+      "type": "Other Current Liability",
+      "sub_type": "OtherCurrentLiabilities"
+    },
+    {
+      "id": "72",
+      "name": "Maintenance and Repair",
+      "type": "Expense",
+      "sub_type": "RepairMaintenance"
+    },
+    {
+      "id": "53",
+      "name": "Maintenance and Repair",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "61",
+      "name": "Maintenance and Repairs",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "41",
+      "name": "Mastercard",
+      "type": "Credit Card",
+      "sub_type": "CreditCard"
+    },
+    {
+      "id": "13",
+      "name": "Meals and Entertainment",
+      "type": "Expense",
+      "sub_type": "EntertainmentMeals"
+    },
+    {
+      "id": "14",
+      "name": "Miscellaneous",
+      "type": "Other Expense",
+      "sub_type": "OtherMiscellaneousExpense"
+    },
+    {
+      "id": "44",
+      "name": "Notes Payable",
+      "type": "Long Term Liability",
+      "sub_type": "OtherLongTermLiabilities"
+    },
+    {
+      "id": "15",
+      "name": "Office Expenses",
+      "type": "Expense",
+      "sub_type": "OfficeGeneralAdministrativeExpenses"
+    },
+    {
+      "id": "34",
+      "name": "Opening Balance Equity",
+      "type": "Equity",
+      "sub_type": "OpeningBalanceEquity"
+    },
+    {
+      "id": "38",
+      "name": "Original Cost",
+      "type": "Fixed Asset",
+      "sub_type": "Vehicles"
+    },
+    {
+      "id": "83",
+      "name": "Other Income",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "26",
+      "name": "Other Portfolio Income",
+      "type": "Other Income",
+      "sub_type": "OtherMiscellaneousIncome"
+    },
+    {
+      "id": "27",
+      "name": "Penalties & Settlements",
+      "type": "Other Expense",
+      "sub_type": "PenaltiesSettlements"
+    },
+    {
+      "id": "68",
+      "name": "Permits",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "54",
+      "name": "Pest Control Services",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "49",
+      "name": "Plants and Soil",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "66",
+      "name": "Plants and Soil",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "3",
+      "name": "Prepaid Expenses",
+      "type": "Other Current Asset",
+      "sub_type": "PrepaidExpenses"
+    },
+    {
+      "id": "16",
+      "name": "Promotional",
+      "type": "Expense",
+      "sub_type": "AdvertisingPromotional"
+    },
+    {
+      "id": "78",
+      "name": "Purchases",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "6",
+      "name": "Refunds-Allowances",
+      "type": "Income",
+      "sub_type": "DiscountsRefundsGiven"
+    },
+    {
+      "id": "17",
+      "name": "Rent or Lease",
+      "type": "Expense",
+      "sub_type": "RentOrLeaseOfBuildings"
+    },
+    {
+      "id": "2",
+      "name": "Retained Earnings",
+      "type": "Equity",
+      "sub_type": "RetainedEarnings"
+    },
+    {
+      "id": "79",
+      "name": "Sales of Product Income",
+      "type": "Income",
+      "sub_type": "SalesOfProductIncome"
+    },
+    {
+      "id": "36",
+      "name": "Savings",
+      "type": "Bank",
+      "sub_type": "Savings"
+    },
+    {
+      "id": "1",
+      "name": "Services",
+      "type": "Income",
+      "sub_type": "ServiceFeeIncome"
+    },
+    {
+      "id": "50",
+      "name": "Sprinklers and Drip Systems",
+      "type": "Income",
+      "sub_type": "OtherPrimaryIncome"
+    },
+    {
+      "id": "67",
+      "name": "Sprinklers and Drip Systems",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "19",
+      "name": "Stationery & Printing",
+      "type": "Expense",
+      "sub_type": "OfficeGeneralAdministrativeExpenses"
+    },
+    {
+      "id": "20",
+      "name": "Supplies",
+      "type": "Expense",
+      "sub_type": "SuppliesMaterials"
+    },
+    {
+      "id": "21",
+      "name": "Taxes & Licenses",
+      "type": "Expense",
+      "sub_type": "TaxesPaid"
+    },
+    {
+      "id": "77",
+      "name": "Telephone",
+      "type": "Expense",
+      "sub_type": "Utilities"
+    },
+    {
+      "id": "22",
+      "name": "Travel",
+      "type": "Expense",
+      "sub_type": "Travel"
+    },
+    {
+      "id": "23",
+      "name": "Travel Meals",
+      "type": "Expense",
+      "sub_type": "TravelMeals"
+    },
+    {
+      "id": "37",
+      "name": "Truck",
+      "type": "Fixed Asset",
+      "sub_type": "Vehicles"
+    },
+    {
+      "id": "88",
+      "name": "Unapplied Cash Bill Payment Expense",
+      "type": "Expense",
+      "sub_type": "UnappliedCashBillPaymentExpense"
+    },
+    {
+      "id": "87",
+      "name": "Unapplied Cash Payment Income",
+      "type": "Income",
+      "sub_type": "UnappliedCashPaymentIncome"
+    },
+    {
+      "id": "32",
+      "name": "Uncategorized Asset",
+      "type": "Other Current Asset",
+      "sub_type": "OtherCurrentAssets"
+    },
+    {
+      "id": "31",
+      "name": "Uncategorized Expense",
+      "type": "Expense",
+      "sub_type": "OtherMiscellaneousServiceCost"
+    },
+    {
+      "id": "30",
+      "name": "Uncategorized Income",
+      "type": "Income",
+      "sub_type": "ServiceFeeIncome"
+    },
+    {
+      "id": "4",
+      "name": "Undeposited Funds",
+      "type": "Other Current Asset",
+      "sub_type": "UndepositedFunds"
+    },
+    {
+      "id": "24",
+      "name": "Utilities",
+      "type": "Expense",
+      "sub_type": "Utilities"
+    },
+    {
+      "id": "42",
+      "name": "Visa",
+      "type": "Credit Card",
+      "sub_type": "CreditCard"
+    },
+    {
+      "id": "57",
+      "name": "Workers Compensation",
+      "type": "Expense",
+      "sub_type": "Insurance"
+    }
+  ]
+}

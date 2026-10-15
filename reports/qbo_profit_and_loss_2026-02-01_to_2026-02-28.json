@@ -1,0 +1,29 @@
+{
+  "period": {
+    "start_date": "2026-02-01",
+    "end_date": "2026-02-28"
+  },
+  "report": {
+    "total_revenue": "183160.30",
+    "cost_of_goods_sold": "59234.68",
+    "gross_profit": "123925.62",
+    "operating_expenses": "380511.61",
+    "net_operating_income": "-256585.99",
+    "total_other_expenses": "119992.44",
+    "net_income": "-376578.43"
+  },
+  "metric_status": {
+    "total_revenue": "available",
+    "cost_of_goods_sold": "available",
+    "gross_profit": "available",
+    "operating_expenses": "available",
+    "net_operating_income": "available",
+    "total_other_expenses": "available",
+    "net_income": "available"
+  },
+  "no_report_data": false,
+  "currency": "USD",
+  "report_name": "ProfitAndLoss",
+  "report_basis": "Accrual",
+  "retrieved_at": "2026-10-15T20:16:59+00:00"
+}
